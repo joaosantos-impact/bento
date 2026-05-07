@@ -15,7 +15,6 @@ type Props = {
   tipo: "AT" | "AUTO";
   seccaoId: string;
   contexto: Record<string, unknown>;
-  modeloPesado?: boolean;
   hint?: string;
 };
 
@@ -27,7 +26,6 @@ export function NarrativeField({
   tipo,
   seccaoId,
   contexto,
-  modeloPesado,
   hint,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -51,7 +49,6 @@ export function NarrativeField({
         seccaoId,
         contexto,
         factos,
-        modeloPesado,
       });
       const json = await res.json();
       if (!res.ok) {
@@ -98,6 +95,7 @@ export function NarrativeField({
 
       <Modal
         open={open}
+        size="lg"
         onClose={() => setOpen(false)}
         title={`Gerar texto: ${label}`}
         footer={

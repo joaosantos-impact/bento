@@ -21,7 +21,8 @@ export const SECCOES: SectionDef[] = [
   { id: "segurado.atividade", titulo: "Actividade do segurado", descricao: "Sector de actividade da empresa.", tipo: "AT" },
   { id: "sinistrado.nome", titulo: "Nome do sinistrado", descricao: "Trabalhador acidentado.", tipo: "AT" },
   { id: "sinistrado.profissao", titulo: "Profissão do sinistrado", descricao: "Função desempenhada.", tipo: "AT" },
-  { id: "sinistrado.lesoes", titulo: "Lesões", descricao: "Lesões verificadas e tratamentos clínicos.", tipo: "AT" },
+  { id: "sinistrado.lesoes", titulo: "Lesões do sinistrado", descricao: "Lesões verificadas, exames realizados e tratamentos clínicos.", tipo: "AT" },
+  { id: "segurado.avaliacao", titulo: "Avaliação interna do empregador", descricao: "Resultado da avaliação do acidente feita pela própria empresa empregadora.", tipo: "AT" },
 
   // AT — narrativos
   { id: "horarioTrabalho", titulo: "1.1 Horário de trabalho", descricao: "Regime laboral, horas cumpridas até ao acidente.", tipo: "AT" },
@@ -43,6 +44,8 @@ export const SECCOES: SectionDef[] = [
   { id: "conclusoes", titulo: "12. Definição / Conclusões", descricao: "Conclusões finais e recomendação à seguradora.", tipo: "AT" },
 
   // Auto — versão simplificada (apenas as secções narrativas mais usadas)
+  { id: "local.vestigios", titulo: "Vestígios encontrados no local", descricao: "Marcas de travagem, deformações, vidros, elementos físicos observados na via.", tipo: "AUTO" },
+  { id: "local.caracterizacao", titulo: "Caracterização do local / outros elementos", descricao: "Detalhes adicionais sobre o local, contexto envolvente, particularidades.", tipo: "AUTO" },
   { id: "versaoSegurado", titulo: "9. Versão do Segurado / CVS", descricao: "Versão do segurado/condutor sobre o sinistro.", tipo: "AUTO" },
   { id: "versaoTerceiro", titulo: "10. Versão do Terceiro", descricao: "Versão do condutor terceiro.", tipo: "AUTO" },
   { id: "outrosDanosMateriais", titulo: "13. Outros danos materiais", descricao: "Descrição de outros bens danificados.", tipo: "AUTO" },

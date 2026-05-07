@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { AudioVisualizer } from "./audio-visualizer";
 
 // Web Speech API types are not in the default TS lib. Minimal subset we use here.
 type SpeechRecognitionResult = {
@@ -98,24 +99,30 @@ export function AudioRecorder({ onTranscript, language = "pt-PT", className }: P
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      className={
-        (className ?? "") +
-        " inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition " +
-        (recording
-          ? "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
-          : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200")
-      }
-    >
-      <span
+    <div className={(className ?? "") + " inline-flex items-center gap-2"}>
+      <button
+        type="button"
+        onClick={toggle}
         className={
-          "inline-block h-2 w-2 rounded-full " +
-          (recording ? "bg-red-500 animate-pulse" : "bg-zinc-400")
+          "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition " +
+          (recording
+            ? "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
+            : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200")
         }
-      />
-      {recording ? "Parar" : "Gravar voz"}
-    </button>
+      >
+        <span
+          className={
+            "inline-block h-2 w-2 rounded-full " +
+            (recording ? "bg-red-500 animate-pulse" : "bg-zinc-400")
+          }
+        />
+        {recording ? "Parar" : "Gravar voz"}
+      </button>
+      {recording && (
+        <div className="flex items-center rounded-md border border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/30">
+          <AudioVisualizer active={recording} />
+        </div>
+      )}
+    </div>
   );
 }

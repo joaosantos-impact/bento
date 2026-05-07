@@ -23,7 +23,7 @@ export async function routeInput(
   config?: RuntimeConfig,
 ): Promise<RouteInputResult> {
   const client = openrouter(config);
-  const model = resolveModel(config ?? {}, false);
+  const model = resolveModel(config ?? {});
   const seccoes = seccoesPorTipo(tipo);
   const seccoesList = seccoes
     .map((s) => `- "${s.id}" — ${s.titulo}: ${s.descricao}`)

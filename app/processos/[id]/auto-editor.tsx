@@ -4,18 +4,17 @@ import { useRouter } from "next/navigation";
 import { type AutoReport } from "@/lib/schemas/auto-report";
 import { type Processo } from "@/lib/types";
 import { deleteProcesso, updateProcesso } from "@/lib/storage/local-store";
-import { TextArea, TextField } from "@/components/form/field";
+import { TextField } from "@/components/form/field";
 import { Card } from "@/components/form/card";
 import { NarrativeField } from "@/components/form/narrative-field";
 import { useAutoSave } from "@/lib/hooks/use-autosave";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { SaveStatus } from "@/components/ui/save-status";
-import { GlobalRouterDialog } from "@/components/capture/global-router-dialog";
 
-type Props = { processo: Extract<Processo, { tipo: "AUTO" }> };
+type Props = { processo: Extract<Processo, { tipo: "AUTO" }>; hideHeader?: boolean };
 
-export function AutoEditor({ processo }: Props) {
+export function AutoEditor({ processo, hideHeader }: Props) {
   const router = useRouter();
   const [data, setData] = useState<AutoReport>(processo.data);
   const [exporting, setExporting] = useState(false);
@@ -90,37 +89,6 @@ export function AutoEditor({ processo }: Props) {
     router.push("/");
   }
 
-  function applyFromRouter(seccaoId: string, value: string, mode: "replace" | "append") {
-    const dot = seccaoId.indexOf(".");
-    if (dot === -1) {
-      setData((prev) => {
-        const current = (prev[seccaoId as keyof AutoReport] as string | undefined) ?? "";
-        const next = mode === "append" && current.trim() ? `${current.trim()}\n\n${value}` : value;
-        return { ...prev, [seccaoId]: next };
-      });
-    } else {
-      const section = seccaoId.slice(0, dot) as
-        | "header"
-        | "segurado"
-        | "condutor"
-        | "terceiro"
-        | "condutorTerceiro"
-        | "testemunha"
-        | "feridos"
-        | "local"
-        | "assistencia"
-        | "danosSeguro"
-        | "danosTerceiro";
-      const key = seccaoId.slice(dot + 1);
-      setData((prev) => {
-        const sectionData = (prev[section] ?? {}) as Record<string, string>;
-        const current = sectionData[key] ?? "";
-        const next = mode === "append" && current.trim() ? `${current.trim()}\n\n${value}` : value;
-        return { ...prev, [section]: { ...sectionData, [key]: next } };
-      });
-    }
-  }
-
   const h = data.header;
   const seg = data.segurado;
   const con = data.condutor;
@@ -131,35 +99,38 @@ export function AutoEditor({ processo }: Props) {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs font-medium text-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
-            AUTO
-          </span>
-          <h1 className="mt-2 text-2xl font-semibold">
-            {data.header?.assunto || "Relatório sem título"}
-          </h1>
-          <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm text-zinc-500 hover:border-red-400 hover:text-red-600 dark:border-zinc-700"
-          >
-            Apagar
-          </button>
-          <GlobalRouterDialog tipo="AUTO" onApply={applyFromRouter} />
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            {exporting ? "A gerar…" : "Exportar DOCX"}
-          </button>
-        </div>
-      </header>
+      {hideHeader ? (
+        <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
+      ) : (
+        <header className="flex items-center justify-between">
+          <div>
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs font-medium text-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
+              AUTO
+            </span>
+            <h1 className="mt-2 text-2xl font-semibold">
+              {data.header?.assunto || "Relatório sem título"}
+            </h1>
+            <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm text-zinc-500 hover:border-red-400 hover:text-red-600 dark:border-zinc-700"
+            >
+              Apagar
+            </button>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              {exporting ? "A gerar…" : "Exportar DOCX"}
+            </button>
+          </div>
+        </header>
+      )}
 
       <Card title="Identificação do processo">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -279,8 +250,8 @@ export function AutoEditor({ processo }: Props) {
           <TextField label="Iluminação" name="ilum" value={loc?.iluminacao} onChange={(v) => updateNested("local", "iluminacao", v)} />
           <TextField label="Intensidade do tráfego" name="trafego" value={loc?.intensidadeTrafego} onChange={(v) => updateNested("local", "intensidadeTrafego", v)} />
         </div>
-        <TextArea label="Vestígios encontrados" name="vest" value={loc?.vestigios} onChange={(v) => updateNested("local", "vestigios", v)} />
-        <TextArea label="Caracterização do local / outros elementos relevantes" name="carac" value={loc?.caracterizacao} onChange={(v) => updateNested("local", "caracterizacao", v)} />
+        <NarrativeField label="Vestígios encontrados" name="vest" value={loc?.vestigios} onChange={(v) => updateNested("local", "vestigios", v)} tipo="AUTO" seccaoId="local.vestigios" contexto={data} />
+        <NarrativeField label="Caracterização do local / outros elementos relevantes" name="carac" value={loc?.caracterizacao} onChange={(v) => updateNested("local", "caracterizacao", v)} tipo="AUTO" seccaoId="local.caracterizacao" contexto={data} />
       </Card>
 
       <Card title="3–7. Entidades + Assistência em viagem">
@@ -306,10 +277,10 @@ export function AutoEditor({ processo }: Props) {
       </Card>
 
       <Card title="16–17. Apreciação + Conclusões">
-        <NarrativeField label="16. Apreciação Técnica do Sinistro" name="apre" value={data.apreciacaoTecnica} onChange={(v) => update("apreciacaoTecnica", v)} tipo="AUTO" seccaoId="apreciacaoTecnica" contexto={data} modeloPesado />
+        <NarrativeField label="16. Apreciação Técnica do Sinistro" name="apre" value={data.apreciacaoTecnica} onChange={(v) => update("apreciacaoTecnica", v)} tipo="AUTO" seccaoId="apreciacaoTecnica" contexto={data} />
         <NarrativeField label="16.1 Elementos suspeitos" name="elS" value={data.elementosSuspeitos} onChange={(v) => update("elementosSuspeitos", v)} tipo="AUTO" seccaoId="elementosSuspeitos" contexto={data} />
         <NarrativeField label="16.2 Elementos de prova" name="elP" value={data.elementosProva} onChange={(v) => update("elementosProva", v)} tipo="AUTO" seccaoId="elementosProva" contexto={data} />
-        <NarrativeField label="17. Definição / Conclusões" name="con" value={data.conclusoes} onChange={(v) => update("conclusoes", v)} tipo="AUTO" seccaoId="conclusoes" contexto={data} modeloPesado />
+        <NarrativeField label="17. Definição / Conclusões" name="con" value={data.conclusoes} onChange={(v) => update("conclusoes", v)} tipo="AUTO" seccaoId="conclusoes" contexto={data} />
         <TextField label="Data do relatório (linha final)" name="dataRel" value={data.dataRelatorio} onChange={(v) => update("dataRelatorio", v)} placeholder="ex: Lisboa, 7 de Maio de 2026" />
       </Card>
     </div>

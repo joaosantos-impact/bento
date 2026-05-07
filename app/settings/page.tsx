@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/form/card";
-import { TextField } from "@/components/form/field";
+import { Select } from "@/components/form/field";
 import { useToast } from "@/components/ui/toast";
 import { getSettings, saveSettings, type Settings } from "@/lib/storage/settings";
+import { DEFAULT_MODEL_FALLBACK, MODEL_OPTIONS } from "@/lib/openrouter";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -114,22 +115,13 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <TextField
-          label="Modelo padrão (opcional)"
+        <Select
+          label="Modelo"
           name="openrouterModel"
-          value={settings.openrouterModel}
+          value={settings.openrouterModel || DEFAULT_MODEL_FALLBACK}
           onChange={(v) => update("openrouterModel", v)}
-          placeholder="anthropic/claude-sonnet-4.6"
-          hint="Usado para gerar texto na maioria das secções e analisar fotos."
-        />
-
-        <TextField
-          label="Modelo pesado (opcional)"
-          name="openrouterModelHeavy"
-          value={settings.openrouterModelHeavy}
-          onChange={(v) => update("openrouterModelHeavy", v)}
-          placeholder="anthropic/claude-opus-4.7"
-          hint="Usado na Apreciação Técnica e Conclusões."
+          options={MODEL_OPTIONS}
+          hint="Usado para gerar texto, distribuir inputs e analisar fotos."
         />
 
         <div className="flex items-center gap-2 pt-2">

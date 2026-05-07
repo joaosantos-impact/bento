@@ -7,14 +7,13 @@ export type GenerateSectionInput = {
   seccao: SectionDef;
   contexto: Record<string, unknown>;
   factos: string;
-  modeloPesado?: boolean;
   config?: RuntimeConfig;
 };
 
 export async function generateSection(input: GenerateSectionInput): Promise<string> {
-  const { tipo, seccao, contexto, factos, modeloPesado, config } = input;
+  const { tipo, seccao, contexto, factos, config } = input;
   const client = openrouter(config);
-  const model = resolveModel(config ?? {}, modeloPesado);
+  const model = resolveModel(config ?? {});
 
   const userPrompt = `TIPO DE RELATÓRIO: ${tipo === "AT" ? "Acidente de Trabalho" : "Sinistro Automóvel"}
 

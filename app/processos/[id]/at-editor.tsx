@@ -4,18 +4,17 @@ import { useRouter } from "next/navigation";
 import { type AtReport } from "@/lib/schemas/at-report";
 import { type Processo } from "@/lib/types";
 import { deleteProcesso, updateProcesso } from "@/lib/storage/local-store";
-import { TextArea, TextField } from "@/components/form/field";
+import { TextField } from "@/components/form/field";
 import { Card } from "@/components/form/card";
 import { NarrativeField } from "@/components/form/narrative-field";
 import { useAutoSave } from "@/lib/hooks/use-autosave";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { SaveStatus } from "@/components/ui/save-status";
-import { GlobalRouterDialog } from "@/components/capture/global-router-dialog";
 
-type Props = { processo: Extract<Processo, { tipo: "AT" }> };
+type Props = { processo: Extract<Processo, { tipo: "AT" }>; hideHeader?: boolean };
 
-export function AtEditor({ processo }: Props) {
+export function AtEditor({ processo, hideHeader }: Props) {
   const router = useRouter();
   const [data, setData] = useState<AtReport>(processo.data);
   const [exporting, setExporting] = useState(false);
@@ -90,61 +89,44 @@ export function AtEditor({ processo }: Props) {
     router.push("/");
   }
 
-  function applyFromRouter(seccaoId: string, value: string, mode: "replace" | "append") {
-    const dot = seccaoId.indexOf(".");
-    if (dot === -1) {
-      setData((prev) => {
-        const current = (prev[seccaoId as keyof AtReport] as string | undefined) ?? "";
-        const next = mode === "append" && current.trim() ? `${current.trim()}\n\n${value}` : value;
-        return { ...prev, [seccaoId]: next };
-      });
-    } else {
-      const section = seccaoId.slice(0, dot) as "header" | "segurado" | "sinistrado";
-      const key = seccaoId.slice(dot + 1);
-      setData((prev) => {
-        const sectionData = (prev[section] ?? {}) as Record<string, string>;
-        const current = sectionData[key] ?? "";
-        const next = mode === "append" && current.trim() ? `${current.trim()}\n\n${value}` : value;
-        return { ...prev, [section]: { ...sectionData, [key]: next } };
-      });
-    }
-  }
-
   const h = data.header;
   const seg = data.segurado;
   const sin = data.sinistrado;
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
-            AT
-          </span>
-          <h1 className="mt-2 text-2xl font-semibold">
-            {data.header?.assunto || "Relatório sem título"}
-          </h1>
-          <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm text-zinc-500 hover:border-red-400 hover:text-red-600 dark:border-zinc-700"
-          >
-            Apagar
-          </button>
-          <GlobalRouterDialog tipo="AT" onApply={applyFromRouter} />
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            {exporting ? "A gerar…" : "Exportar DOCX"}
-          </button>
-        </div>
-      </header>
+      {hideHeader ? (
+        <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
+      ) : (
+        <header className="flex items-center justify-between">
+          <div>
+            <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+              AT
+            </span>
+            <h1 className="mt-2 text-2xl font-semibold">
+              {data.header?.assunto || "Relatório sem título"}
+            </h1>
+            <SaveStatus status={status} lastSavedAt={lastSavedAt} fallbackAt={processo.updatedAt} />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm text-zinc-500 hover:border-red-400 hover:text-red-600 dark:border-zinc-700"
+            >
+              Apagar
+            </button>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              {exporting ? "A gerar…" : "Exportar DOCX"}
+            </button>
+          </div>
+        </header>
+      )}
 
       <Card title="Identificação do processo">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -170,7 +152,7 @@ export function AtEditor({ processo }: Props) {
           <TextField label="Nº de trabalhadores" name="seg_n_trabalhadores" value={seg?.numeroTrabalhadores} onChange={(v) => updateNested("segurado", "numeroTrabalhadores", v)} />
           <TextField label="Serviços de SST" name="seg_sst" value={seg?.servicosSst} onChange={(v) => updateNested("segurado", "servicosSst", v)} />
         </div>
-        <TextArea label="Resultado da avaliação do acidente por parte da empresa" name="seg_avaliacao" value={seg?.avaliacao} onChange={(v) => updateNested("segurado", "avaliacao", v)} />
+        <NarrativeField label="Resultado da avaliação do acidente por parte da empresa" name="seg_avaliacao" value={seg?.avaliacao} onChange={(v) => updateNested("segurado", "avaliacao", v)} tipo="AT" seccaoId="segurado.avaliacao" contexto={data} />
       </Card>
 
       <Card title="Sinistrado">
@@ -182,7 +164,7 @@ export function AtEditor({ processo }: Props) {
           <TextField label="Idade" name="sin_idade" value={sin?.idade} onChange={(v) => updateNested("sinistrado", "idade", v)} />
           <TextField label="Profissão" name="sin_profissao" value={sin?.profissao} onChange={(v) => updateNested("sinistrado", "profissao", v)} />
         </div>
-        <TextArea label="Lesões" name="sin_lesoes" value={sin?.lesoes} onChange={(v) => updateNested("sinistrado", "lesoes", v)} />
+        <NarrativeField label="Lesões" name="sin_lesoes" value={sin?.lesoes} onChange={(v) => updateNested("sinistrado", "lesoes", v)} tipo="AT" seccaoId="sinistrado.lesoes" contexto={data} />
       </Card>
 
       <Card title="1. Data e hora · Horário">
@@ -212,7 +194,7 @@ export function AtEditor({ processo }: Props) {
       </Card>
 
       <Card title="11. Apreciação Técnica">
-        <NarrativeField label="11. Apreciação Técnica do Sinistro" name="apreciacaoTecnica" value={data.apreciacaoTecnica} onChange={(v) => update("apreciacaoTecnica", v)} tipo="AT" seccaoId="apreciacaoTecnica" contexto={data} modeloPesado />
+        <NarrativeField label="11. Apreciação Técnica do Sinistro" name="apreciacaoTecnica" value={data.apreciacaoTecnica} onChange={(v) => update("apreciacaoTecnica", v)} tipo="AT" seccaoId="apreciacaoTecnica" contexto={data} />
         <NarrativeField label="11.1 Análise do local" name="analiseLocal" value={data.analiseLocal} onChange={(v) => update("analiseLocal", v)} tipo="AT" seccaoId="analiseLocal" contexto={data} />
         <NarrativeField label="11.2 Análise do contacto com Tomador" name="analiseContactoTomador" value={data.analiseContactoTomador} onChange={(v) => update("analiseContactoTomador", v)} tipo="AT" seccaoId="analiseContactoTomador" contexto={data} />
         <NarrativeField label="11.3 Análise das condições SST" name="analiseSst" value={data.analiseSst} onChange={(v) => update("analiseSst", v)} tipo="AT" seccaoId="analiseSst" contexto={data} />
@@ -221,7 +203,7 @@ export function AtEditor({ processo }: Props) {
       </Card>
 
       <Card title="12. Definição / Conclusões + Encerramento">
-        <NarrativeField label="12. Definição / Conclusões" name="conclusoes" value={data.conclusoes} onChange={(v) => update("conclusoes", v)} tipo="AT" seccaoId="conclusoes" contexto={data} modeloPesado />
+        <NarrativeField label="12. Definição / Conclusões" name="conclusoes" value={data.conclusoes} onChange={(v) => update("conclusoes", v)} tipo="AT" seccaoId="conclusoes" contexto={data} />
         <TextField label="Data do relatório (linha final)" name="dataRelatorio" value={data.dataRelatorio} onChange={(v) => update("dataRelatorio", v)} placeholder="ex: Lisboa, 7 de Maio de 2026" />
       </Card>
     </div>

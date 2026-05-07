@@ -66,6 +66,7 @@ export function GlobalRouterDialog({ tipo, onApply }: Props) {
       </button>
       <Modal
         open={open}
+        size="xl"
         onClose={() => {
           setOpen(false);
           reset();

@@ -11,7 +11,5 @@ export async function callAi(path: string, body: unknown): Promise<Response> {
   };
   if (s.openrouterKey?.trim()) headers["X-Openrouter-Key"] = s.openrouterKey.trim();
   if (s.openrouterModel?.trim()) headers["X-Openrouter-Model"] = s.openrouterModel.trim();
-  if (s.openrouterModelHeavy?.trim())
-    headers["X-Openrouter-Model-Heavy"] = s.openrouterModelHeavy.trim();
   return fetch(path, { method: "POST", headers, body: JSON.stringify(body) });
 }

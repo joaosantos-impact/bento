@@ -9,7 +9,7 @@ export type AnalyzePhotoInput = {
 
 export async function analyzePhoto(input: AnalyzePhotoInput): Promise<string> {
   const client = openrouter(input.config);
-  const model = resolveModel(input.config ?? {}, false);
+  const model = resolveModel(input.config ?? {});
   const userText = input.hint?.trim()
     ? `Contexto fornecido pelo utilizador: ${input.hint.trim()}\n\nDescreve/transcreve agora factualmente o que vês na imagem.`
     : `Descreve/transcreve factualmente o que vês na imagem.`;

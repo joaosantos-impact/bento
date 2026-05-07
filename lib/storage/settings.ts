@@ -5,7 +5,6 @@ const KEY = "bento.settings.v1";
 export type Settings = {
   openrouterKey?: string;
   openrouterModel?: string;
-  openrouterModelHeavy?: string;
 };
 
 export function getSettings(): Settings {

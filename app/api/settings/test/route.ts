@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   }
   try {
     const client = openrouter(config);
-    const model = resolveModel(config, false);
+    const model = resolveModel(config);
     const r = await client.chat.completions.create({
       model,
       max_tokens: 5,
