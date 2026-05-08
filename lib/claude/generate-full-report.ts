@@ -1,5 +1,5 @@
 import { type RuntimeConfig, openrouter, resolveModel } from "@/lib/openrouter";
-import { CAPT_BASE_RULES } from "./system-prompts";
+import { CAPT_BASE_RULES, captFewShot } from "./system-prompts";
 import { AtReportSchema, type AtReport } from "@/lib/schemas/at-report";
 import { AutoReportSchema, type AutoReport } from "@/lib/schemas/auto-report";
 
@@ -190,24 +190,32 @@ function buildPrompt(tipo: "AT" | "AUTO", contexto: string): string {
   const tipoTitulo = tipo === "AT" ? "Acidente de Trabalho" : "Sinistro Automóvel (CIDS/IDS)";
   return `TIPO DE RELATÓRIO: ${tipoTitulo}
 
-CONTEXTO COMPLETO DO CASO (notas, transcrições de áudio, descrições de fotos — tudo o que o averiguador recolheu):
+CONTEXTO COMPLETO DO CASO (notas do averiguador, transcrições de áudio, descrições de fotos — tudo o que foi recolhido):
 """
 ${contexto.trim()}
 """
 
 TAREFA:
-Preenche TODOS os campos da estrutura JSON abaixo, baseando-te ESTRITAMENTE no contexto acima. Não inventes informação que não esteja lá.
+Preenche TODOS os campos da estrutura JSON abaixo. NENHUM CAMPO PODE FICAR VAZIO. Aplica as regras do system prompt:
 
-REGRAS:
-1. Para campos que não tenhas informação no contexto, devolve string vazia "". NÃO escrevas "[a confirmar]" — fica string vazia.
-2. Campos curtos (nomes, NIFs, datas, números, matrículas, cores, etc.): apenas o valor exacto, sem floreado. Ex: "Generali Tranquilidade", "234567890", "13/03/2026 — 20h00".
-3. Secções narrativas longas (versões, análises, apreciação técnica, conclusões, elementos suspeitos): parágrafos formais no estilo CAPT (3ª pessoa, formal, português de Portugal pré-acordo ortográfico, sem markdown, sem bullets a menos que o conteúdo natural exija).
-4. Datas no formato DD/MM/AAAA, horas no formato HHhMM ou HH:MM.
-5. Não inventes nomes próprios, moradas, datas ou valores. Usa exactamente o que está no contexto.
-6. Se o contexto contém contradições, regista as duas versões na secção apropriada (ex: "elementosSuspeitos") em vez de escolher uma.
-7. Se o contexto não menciona nada sobre uma secção (ex: nenhuma referência a tribunais), deixa o campo a string vazia.
+- Campos factuais sem informação no contexto → "[a confirmar]" (não inventes nomes/NIFs/datas).
+- Campos de análise/descritivos → SEMPRE escreves um parágrafo profissional, deduzindo profissionalmente a partir do contexto e do enquadramento legal aplicável (Lei n.º 98/2009 para AT, regime do contrato de seguro automóvel para Auto).
+- Para "conclusoes" e "apreciacaoTecnica": NUNCA deixar vazio. Mesmo que o contexto seja escasso, escreves uma análise/conclusão profissional baseada no que está dado e no enquadramento técnico-jurídico, recomendando validação, não-validação ou diligências adicionais consoante o que os elementos sugerem.
+- Para sub-objectos (ex: "segurado", "sinistrado", "header"): preenche todas as keys; usa "[a confirmar]" para os factuais ausentes.
 
-ESTRUTURA JSON A DEVOLVER (preenche os valores; mantém a estrutura idêntica):
+EXEMPLOS DE CAMPOS COMUNS (orientações tácticas):
+- header.assunto: frase curta tipo "Acidente de trabalho — pedreiro — fractura na perna" (deduz da actividade + lesão).
+- horarioTrabalho: parágrafo descrevendo regime laboral e horas cumpridas até ao acidente.
+- operacaoTarefa: parágrafo descrevendo a tarefa em execução.
+- versaoSinistrado: parágrafo em terceira pessoa com declarações; pode incluir trechos em discurso directo entre aspas se o contexto fornecer.
+- testemunha: parágrafo; se nenhuma testemunha referida no contexto, escreve "Não foram referidas, nem identificadas, quaisquer testemunhas oculares ou não oculares, relativamente ao sinistro em apreço."
+- autoridades/tribunais/bombeirosInem/act: parágrafo curto; se nada referido, escreve algo como "Não foram efectuados contactos com autoridades policiais, não constando da participação qualquer indicação nesse sentido."
+- analiseSst: enquadramento legal (Lei n.º 98/2009) + análise da actividade.
+- elementosSuspeitos: lista de pontos com bullet points "•" para cada incongruência identificada (formato CAPT). Se não há incongruências, escreve "Não foram identificados, no decurso da averiguação, elementos susceptíveis de configurar reservas relevantes quanto à veracidade do evento participado."
+- conclusoes: parágrafos longos com enquadramento legal e recomendação final.
+- dataRelatorio: se a data não está no contexto, usa "Lisboa, [data a confirmar]".
+
+ESTRUTURA JSON A DEVOLVER (preenche todos os valores; mantém a estrutura idêntica):
 ${JSON.stringify(skeleton, null, 2)}
 
 Devolve APENAS o objecto JSON, sem markdown, sem explicações adicionais.`;
@@ -228,13 +236,13 @@ export async function generateFullReport(
 
   const response = await client.chat.completions.create({
     model,
-    temperature: 0.2,
+    temperature: 0.3,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: CAPT_BASE_RULES },
+      { role: "system", content: `${CAPT_BASE_RULES}\n\n${captFewShot(tipo)}` },
       { role: "user", content: buildPrompt(tipo, contexto) },
     ],
-    max_tokens: 8000,
+    max_tokens: 12000,
   });
 
   const content = response.choices[0]?.message?.content?.trim() ?? "{}";
