@@ -1,15 +1,15 @@
 import OpenAI from "openai";
 
-export const DEFAULT_MODEL_FALLBACK = "anthropic/claude-sonnet-4.6";
+export const DEFAULT_MODEL_FALLBACK = "anthropic/claude-3.5-sonnet";
 
-// Curated list of models surfaced in the /settings dropdown. Keep short and
-// opinionated; users can still override via env var if they need an exotic one.
-export const MODEL_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: "anthropic/claude-sonnet-4.6", label: "Claude Sonnet 4.6 (recomendado)" },
-  { value: "anthropic/claude-opus-4.7", label: "Claude Opus 4.7 (qualidade máxima)" },
-  { value: "anthropic/claude-haiku-4.5", label: "Claude Haiku 4.5 (rápido e barato)" },
-  { value: "openai/gpt-5", label: "GPT-5 (OpenAI)" },
-  { value: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro (Google)" },
+// Last-resort fallback list, used only if the live /api/openrouter/models call
+// fails (no key, network error, OpenRouter down). Kept conservative — these IDs
+// are the long-stable ones that OpenRouter has supported for years.
+export const FALLBACK_MODEL_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
+  { value: "anthropic/claude-3.5-haiku", label: "Claude 3.5 Haiku" },
+  { value: "openai/gpt-4o", label: "GPT-4o" },
+  { value: "google/gemini-pro-1.5", label: "Gemini 1.5 Pro" },
 ];
 
 export type RuntimeConfig = {

@@ -4,18 +4,90 @@ import { Card } from "@/components/form/card";
 import { Select } from "@/components/form/field";
 import { useToast } from "@/components/ui/toast";
 import { getSettings, saveSettings, type Settings } from "@/lib/storage/settings";
-import { DEFAULT_MODEL_FALLBACK, MODEL_OPTIONS } from "@/lib/openrouter";
+import { DEFAULT_MODEL_FALLBACK, FALLBACK_MODEL_OPTIONS } from "@/lib/openrouter";
+
+type ModelInfo = {
+  id: string;
+  name?: string;
+  pricing?: { prompt?: string; completion?: string };
+  architecture?: {
+    input_modalities?: string[];
+    modality?: string;
+  };
+};
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [models, setModels] = useState<ModelInfo[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
     setSettings(getSettings());
   }, []);
+
+  // Fetch available models whenever a key is present.
+  useEffect(() => {
+    const key = settings?.openrouterKey?.trim();
+    if (!key) {
+      setModels([]);
+      setModelsError(null);
+      return;
+    }
+    let cancelled = false;
+    async function load() {
+      setModelsLoading(true);
+      setModelsError(null);
+      try {
+        const res = await fetch("/api/openrouter/models", {
+          headers: { "X-Openrouter-Key": key! },
+        });
+        const json = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setModelsError(json.error ?? "Falha a obter modelos");
+          setModels([]);
+          return;
+        }
+        const list = (json.data as ModelInfo[]) ?? [];
+        // Keep only multimodal models — we send images for the Vision step.
+        const multimodal = list.filter((m) => {
+          const inputs = m.architecture?.input_modalities ?? [];
+          const modality = m.architecture?.modality ?? "";
+          return inputs.includes("image") || modality.includes("image");
+        });
+        // Sort: anthropic/openai/google first, then alphabetic by id.
+        const priority = (id: string) => {
+          if (id.startsWith("anthropic/")) return 0;
+          if (id.startsWith("openai/")) return 1;
+          if (id.startsWith("google/")) return 2;
+          return 3;
+        };
+        multimodal.sort((a, b) => {
+          const pa = priority(a.id);
+          const pb = priority(b.id);
+          if (pa !== pb) return pa - pb;
+          return a.id.localeCompare(b.id);
+        });
+        setModels(multimodal);
+      } catch (e) {
+        if (cancelled) return;
+        const message = e instanceof Error ? e.message : "Erro de rede";
+        setModelsError(message);
+        setModels([]);
+      } finally {
+        if (!cancelled) setModelsLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [settings?.openrouterKey]);
 
   function update<K extends keyof Settings>(key: K, value: Settings[K]) {
     setSettings((prev) => ({ ...(prev ?? {}), [key]: value }));
@@ -67,6 +139,25 @@ export default function SettingsPage() {
 
   const hasKey = Boolean(settings.openrouterKey?.trim());
 
+  // Pick which list of options to show.
+  const modelOptions = (() => {
+    if (models.length > 0) {
+      return models.map((m) => ({
+        value: m.id,
+        label: formatModelLabel(m),
+      }));
+    }
+    return FALLBACK_MODEL_OPTIONS;
+  })();
+
+  // If the saved value is not in the live list, prepend it so the user keeps
+  // their choice visible (and can still re-test it).
+  const currentModel = settings.openrouterModel || DEFAULT_MODEL_FALLBACK;
+  const isInList = modelOptions.some((o) => o.value === currentModel);
+  const finalOptions = isInList
+    ? modelOptions
+    : [{ value: currentModel, label: `${currentModel} (não encontrado na lista)` }, ...modelOptions];
+
   return (
     <div className="max-w-2xl space-y-6">
       <header>
@@ -115,14 +206,28 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <Select
-          label="Modelo"
-          name="openrouterModel"
-          value={settings.openrouterModel || DEFAULT_MODEL_FALLBACK}
-          onChange={(v) => update("openrouterModel", v)}
-          options={MODEL_OPTIONS}
-          hint="Usado para gerar texto, distribuir inputs e analisar fotos."
-        />
+        <div>
+          <Select
+            label={
+              modelsLoading
+                ? "Modelo (a carregar lista live…)"
+                : models.length > 0
+                  ? `Modelo (${models.length} disponíveis com visão)`
+                  : "Modelo"
+            }
+            name="openrouterModel"
+            value={currentModel}
+            onChange={(v) => update("openrouterModel", v)}
+            options={finalOptions}
+            hint={
+              modelsError
+                ? `Não consegui obter a lista live: ${modelsError}. Mostro fallback.`
+                : models.length > 0
+                  ? "Lista actualizada em tempo real do OpenRouter. Filtrei por modelos multimodais (suportam imagens)."
+                  : "Cola a chave para ver a lista actualizada."
+            }
+          />
+        </div>
 
         <div className="flex items-center gap-2 pt-2">
           <button
@@ -160,6 +265,11 @@ export default function SettingsPage() {
             Chave OpenRouter: {hasKey ? "configurada" : "em falta"}
           </li>
           <li>
+            <span className={models.length > 0 ? "text-emerald-600" : "text-zinc-400"}>●</span>{" "}
+            Modelos disponíveis com visão:{" "}
+            {modelsLoading ? "a carregar…" : models.length > 0 ? `${models.length}` : "—"}
+          </li>
+          <li>
             <span className="text-zinc-400">●</span> Web Speech API: usa o reconhecimento de voz
             nativo do Chrome (sem chave, sem custo).
           </li>
@@ -167,4 +277,11 @@ export default function SettingsPage() {
       </Card>
     </div>
   );
+}
+
+function formatModelLabel(m: ModelInfo): string {
+  const name = m.name ?? m.id;
+  const promptPrice = m.pricing?.prompt ? `$${m.pricing.prompt}/Mtok` : null;
+  if (promptPrice) return `${name} — ${promptPrice}`;
+  return name;
 }
