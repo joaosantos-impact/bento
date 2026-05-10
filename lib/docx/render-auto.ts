@@ -94,7 +94,6 @@ function flatten(r: AutoReport): Record<string, string> {
     testemunha_relacao: s(tes?.relacao),
     testemunha_local: s(tes?.local),
 
-    feridos_total: s(fer?.total),
     feridos_veiculo_seguro: s(fer?.veiculoSeguro),
     feridos_veiculo_terceiro: s(fer?.veiculoTerceiro),
     feridos_peoes: s(fer?.peoes),

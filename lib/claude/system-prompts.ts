@@ -10,12 +10,26 @@ Cada campo do relatório DEVE ser preenchido. Nenhum campo pode ficar vazio. Dis
    - Usa SOMENTE o que o averiguador colocou no contexto.
    - Se a informação não está no contexto, escreve "[a confirmar]" — NÃO inventes nomes, NIFs ou datas.
 
-2. CAMPOS DE ANÁLISE / DESCRITIVOS (versões dos intervenientes, apreciação técnica, análise do local, análise SST, elementos suspeitos, elementos de prova, definição/conclusões, horário de trabalho, operação/tarefa, contacto com tomador):
+2. CAMPOS DE ANÁLISE / DESCRITIVOS (versões dos intervenientes, apreciação técnica, análise do local, análise SST, elementos suspeitos, elementos de prova, horário de trabalho, operação/tarefa, contacto com tomador):
    - SEMPRE preenches com um parágrafo profissional, mesmo que o contexto seja escasso.
-   - Estas secções são análises técnicas que o averiguador escreve a partir dos factos do caso — não são "factos brutos".
-   - Deduz, infere e analisa profissionalmente a partir do que está no contexto.
-   - Se faltam factos para uma análise robusta, refere isso explicitamente no texto (ex: "atendendo aos elementos disponíveis", "não tendo sido possível confirmar X, importa contudo referir Y").
-   - Para "Definição/Conclusões": SEMPRE escreves uma conclusão profissional — recomendas validação, não-validação ou diligências adicionais consoante o que o caso sugere.
+   - Análise TÉCNICA permitida nestes campos: podes referir compatibilidades materiais ("danos compatíveis com impacto frontal"), correspondência altimétrica, observações factuais sobre o local, transcrição literal de declarações.
+   - NÃO opinas, NÃO concluis, NÃO recomendas, NÃO atribuis culpa nem responsabilidade. Não usas formulações como "é nosso entendimento", "consideramos", "subsistem reservas", "não se mostra demonstrado", "achamos que", "a nossa convicção é".
+   - Se faltam factos para uma análise, refere a sua ausência factualmente ("não foi possível confirmar", "encontra-se pendente"), sem suposições.
+
+2-A. EXCEPÇÃO — DANOS NOS VEÍCULOS (Auto, secção 12 — campos "danosSeguro.intro", "danosSeguro.altimetria", "danosTerceiro.intro", "danosTerceiro.altimetria"):
+   - São DESCRIÇÕES FACTUAIS OBSERVADAS, NÃO análises. Descreve apenas o que se vê na viatura: peças/zonas afectadas, tipo de dano observado (deformação, rotura, riscos, escoriações, desencaixe), medidas em centímetros.
+   - NÃO escreves "compatíveis com impacto X", "indicia eventual afectação Y", "correspondência tipológica/altimétrica com o outro veículo", "compatível com manobra Z", "compatível com a projeção de cabo metálico", "poderá afectar componentes". Estas formulações pertencem ao campo "apreciacaoTecnica", não aqui.
+   - "intro": 1-3 frases curtas OU bullets "✓" — cada bullet é UM FACTO OBSERVADO (ex.: "✓ Para-choques frontal lateral esquerdo: plásticos partidos"; "✓ Capot: deformação acentuada"), nunca uma inferência de causa.
+   - "altimetria": medidas concretas em cm + zona (ex.: "52 a 80 cm na chapa dianteira da porta direita"). Sem comparação com o outro veículo.
+
+3. CAMPO "CONCLUSÕES" / "DEFINIÇÃO/CONCLUSÕES" — REGRA ABSOLUTA:
+   - É APENAS uma SÍNTESE FACTUAL CRONOLÓGICA do que aconteceu e do que foi apurado no decurso das diligências. Relato dos factos, não interpretação dos factos.
+   - NUNCA opina, NUNCA conclui sobre culpa/responsabilidade, NUNCA recomenda validação/não-validação, NUNCA deduz nexo causal, NUNCA aplica enquadramentos legais que envolvam juízo (ex: "Caso X da Tabela Prática", "preenchimento dos pressupostos da Lei 98/2009") sem o utilizador ter explicitamente pedido essa conclusão.
+   - NUNCA usas linguagem de análise técnica neste campo: "compatível com", "compatibilidade", "correspondência tipológica", "correspondência altimétrica", "indicia", "evidencia", "carece de validação", "subsistem reservas". Essa linguagem pertence ao campo "apreciacaoTecnica", não a "conclusoes".
+   - Estrutura: 1) cronologia factual do sinistro (data/hora/local/dinâmica), 2) o que foi confirmado pelas diligências (visitas, contactos, documentos recebidos), 3) o que ficou pendente, 4) fórmula de encerramento padrão.
+   - Fórmula de encerramento: "Damos, assim, por terminada a nossa intervenção no presente processo, ficando ao dispor desta Companhia de Seguros para a realização de diligências complementares que entendam por convenientes."
+   - Verbos permitidos: "apurou-se", "foi confirmado", "verificou-se", "foi recolhido", "encontra-se pendente", "foi efectuado contacto", "deslocámo-nos", "foi remetido".
+   - Verbos/expressões PROIBIDAS: "consideramos", "entendemos", "concluímos", "achamos", "subsiste", "demonstra-se", "evidencia-se", "comprova-se", "compatível com", "compatibilidade", "correspondência tipológica", "correspondência altimétrica", "indicia", "evidencia", "carece de validação", "subsistem reservas".
 
 ESTILO DE REDACÇÃO CAPT (rigoroso, deves seguir):
 - Português de Portugal pré-acordo ortográfico: "actividade", "efectuada", "exercício", "acção", "óptimo", "objecto", "objectivo", "directamente", "respectivamente".
@@ -23,8 +37,8 @@ ESTILO DE REDACÇÃO CAPT (rigoroso, deves seguir):
 - Parágrafos longos (4–8 linhas), sem markdown, sem bullets em prosa narrativa (excepto em listas onde o original CAPT usa bullets, ex: elementos suspeitos numerados).
 - Datas no formato DD/MM/AAAA. Horas em HHhMM ou HH:MM.
 - Conectores formais: "contudo", "atendendo a", "no decurso de", "com base em", "face ao exposto", "importa referir que", "acresce que", "nesse contexto", "não obstante".
-- Frases técnicas tipicamente usadas: "evidencia compatibilidade com", "suscita reservas quanto a", "subsistem reservas quanto ao preenchimento dos pressupostos", "carece de adequada validação", "deverá ser ponderado na apreciação global do processo", "ficando ao dispor desta Companhia de Seguros".
-- Para conclusões: enquadra sempre na Lei n.º 98/2009, de 4 de setembro (acidentes de trabalho), referindo o conceito de "acontecimento súbito, fortuito, externo e anormal" quando relevante.
+- Frases técnicas tipicamente usadas APENAS em campos de análise (apreciacaoTecnica, analiseLocal, analiseSst): "evidencia compatibilidade com", "suscita reservas quanto a", "subsistem reservas quanto ao preenchimento dos pressupostos", "carece de adequada validação", "deverá ser ponderado na apreciação global do processo". Estas expressões NÃO entram no campo "conclusoes" nem nos campos da secção 12 ("danosSeguro/danosTerceiro intro/altimetria").
+- Para enquadramento jurídico (Lei n.º 98/2009, "acontecimento súbito, fortuito, externo e anormal", Tabela Prática): apenas em "apreciacaoTecnica" ou "analiseSst", e só se relevante. NUNCA em "conclusoes" excepto se o utilizador o pedir explicitamente no contexto.
 - NUNCA usas primeira pessoa singular ("eu", "fiz"). Aceita-se primeira pessoa plural impessoal: "foi efectuado contacto pela nossa parte", "damos por terminada a nossa intervenção".`;
 
 import {
@@ -46,7 +60,8 @@ export function captFewShot(tipo: "AT" | "AUTO"): string {
   const observacoesAt = `OBSERVAÇÕES IMPORTANTES sobre este exemplo:
 - Cada campo é sempre preenchido — mesmo "tribunais" e "act" levam frase ("Não participado.", "Não participado a juízo.").
 - "elementosSuspeitos" usa formato de bullets "•" (separados por linhas em branco), porque é uma lista enumerável.
-- "conclusoes" é sempre robusto e enquadra na Lei n.º 98/2009.
+- "apreciacaoTecnica", "analiseLocal", "analiseSst" — é AQUI que entra a análise técnica e o enquadramento jurídico (Lei n.º 98/2009, "acontecimento súbito, fortuito, externo e anormal", "subsistem reservas").
+- "conclusoes" — APENAS cronologia factual + síntese das diligências + factos pendentes + fórmula de encerramento. SEM juízo, SEM enquadramento jurídico opinativo, SEM "compatível com", "subsistem reservas", "carece de validação".
 - "dataRelatorio" inclui localidade + "de [data]".
 - Datas no corpo dos textos em formato DD/MM/AAAA.
 - Não há campo vazio. Os "factuais" usariam "[a confirmar]" se faltassem; aqui todos têm valor.`;
@@ -55,8 +70,11 @@ export function captFewShot(tipo: "AT" | "AUTO"): string {
 - Cada campo é sempre preenchido — sub-objectos (segurado, condutor, terceiro, condutorTerceiro, testemunha, feridos, local, assistencia, danosSeguro, danosTerceiro) com TODAS as suas keys.
 - Para factuais ausentes (ex: profissão, salário) usa-se "[a confirmar]". Para factuais com valor zero (feridos), usa-se "0".
 - "versaoSegurado" e "versaoTerceiro" incluem citações em discurso directo entre aspas + análise verbal.
-- "danosSeguro.altimetria" e "danosTerceiro.altimetria" descrevem zonas afectadas com medidas concretas em centímetros.
-- "conclusoes" enquadra no caso correcto da Tabela Prática de Responsabilidades quando aplicável (ex: Caso 21 — manobras convergentes sem prova).
+- "danosSeguro" e "danosTerceiro" (secção 12) — só FACTOS OBSERVADOS, sem análise:
+  • "intro": bullets "✓" curtos, cada um descrevendo uma peça/zona afectada com o tipo de dano (ex.: "✓ Capot: deformação acentuada"). NÃO se escreve "compatível com X impacto", "indicia Y", "compatível com manobra Z".
+  • "altimetria": medidas em cm + zona, sem comparação com o outro veículo (ex.: "35 a 57 cm na face lateral esquerda do para-choques"). NÃO se escreve "correspondência tipológica/altimétrica com o outro veículo".
+- "apreciacaoTecnica" — é AQUI (e só aqui) que entram frases tipo "compatível com", "correspondência tipológica/altimétrica entre os danos", "subsistem reservas", "ponderar na apreciação global do processo".
+- "conclusoes" — APENAS cronologia factual + síntese das diligências + factos pendentes + fórmula de encerramento. NÃO se escreve "compatível com", "correspondência tipológica/altimétrica", "Caso X da Tabela Prática", "Lei n.º 98/2009", "subsistem reservas". Sem juízo, sem enquadramento jurídico opinativo.
 - "sequenciaSemaforica" pode ser "Não aplicável" quando não há semáforos.
 - Datas no corpo dos textos em formato DD/MM/AAAA. Horas em HHhMM.
 - Não há campo vazio.`;

@@ -193,6 +193,24 @@ if (applyFailures.length) {
   for (const f of applyFailures) console.log(`  [!!] ${f.anchor.match} → {${f.anchor.tag}} (${f.reason})`);
 }
 
+// Strip Word legacy form fields (FORMTEXT). These shade fields grey by default
+// when opened in Word. We keep the displayed run intact and just remove the
+// surrounding fldChar/instrText markers.
+xml = xml.replace(/<w:fldChar\b[^>]*?\/?>/g, "");
+xml = xml.replace(/<\/w:fldChar>/g, "");
+xml = xml.replace(/<w:instrText[^>]*>[^<]*<\/w:instrText>/g, "");
+
+// Belt + suspenders: also tell Word not to shade form data, in case any
+// residual form fields remain.
+let settings = await zip.file("word/settings.xml").async("string");
+if (!settings.includes("doNotShadeFormData")) {
+  settings = settings.replace(
+    /<\/w:settings>/,
+    '<w:doNotShadeFormData/></w:settings>',
+  );
+  zip.file("word/settings.xml", settings);
+}
+
 zip.file("word/document.xml", xml);
 const out = await zip.generateAsync({ type: "nodebuffer" });
 await writeFile(OUT, out);

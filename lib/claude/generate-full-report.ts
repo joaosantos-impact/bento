@@ -199,9 +199,15 @@ TAREFA:
 Preenche TODOS os campos da estrutura JSON abaixo. NENHUM CAMPO PODE FICAR VAZIO. Aplica as regras do system prompt:
 
 - Campos factuais sem informação no contexto → "[a confirmar]" (não inventes nomes/NIFs/datas).
-- Campos de análise/descritivos → SEMPRE escreves um parágrafo profissional, deduzindo profissionalmente a partir do contexto e do enquadramento legal aplicável (Lei n.º 98/2009 para AT, regime do contrato de seguro automóvel para Auto).
-- Para "conclusoes" e "apreciacaoTecnica": NUNCA deixar vazio. Mesmo que o contexto seja escasso, escreves uma análise/conclusão profissional baseada no que está dado e no enquadramento técnico-jurídico, recomendando validação, não-validação ou diligências adicionais consoante o que os elementos sugerem.
-- Para sub-objectos (ex: "segurado", "sinistrado", "header"): preenche todas as keys; usa "[a confirmar]" para os factuais ausentes.
+- Campos de análise/descritivos (apreciacaoTecnica, analiseLocal, analiseSst, versoes, contactoTomador, etc.) → SEMPRE escreves um parágrafo profissional, deduzindo profissionalmente a partir do contexto e do enquadramento legal aplicável (Lei n.º 98/2009 para AT, regime do contrato de seguro automóvel para Auto).
+- Para "apreciacaoTecnica": parágrafo factual e técnico, com observações de compatibilidade material/altimétrica/cronológica, sem dar veredicto. É AQUI (e não em "conclusoes" nem em "danosSeguro/danosTerceiro") que entram frases tipo "compatível com", "correspondência tipológica/altimétrica", "subsistem reservas".
+- Para "conclusoes": APENAS síntese factual CRONOLÓGICA do que aconteceu e do que foi apurado — relato dos factos, não interpretação. NUNCA opina, NUNCA conclui sobre culpa/responsabilidade, NUNCA recomenda validação/não-validação, NUNCA aplica enquadramentos jurídicos opinativos, NUNCA usa linguagem de análise técnica ("compatível com", "correspondência tipológica/altimétrica", "indicia", "evidencia", "carece de validação", "subsistem reservas"). Estrutura: 1) cronologia do sinistro (data/hora/local/dinâmica), 2) o que foi confirmado pelas diligências (visitas, contactos, documentos recebidos), 3) o que ficou pendente, 4) fórmula de encerramento padrão.
+- Para sub-objectos (ex: "segurado", "sinistrado", "header", "danosSeguro", "danosTerceiro"): preenche TODAS as keys sem excepção; usa "[a confirmar]" para os factuais ausentes.
+- ATENÇÃO ESPECIAL para Auto: a secção 12 (Veículos) é OBRIGATÓRIA e os 4 sub-campos por veículo são preenchidos com FACTOS OBSERVADOS, sem análise:
+  • "intro": 1-3 frases curtas OU bullets "✓" — cada bullet é UM FACTO OBSERVADO sobre uma peça/zona afectada (ex.: "✓ Para-choques frontal lateral esquerdo: plásticos partidos"; "✓ Capot: deformação acentuada"). NÃO usas "compatível com X impacto", "indicia eventual afectação Y", "compatível com manobra Z".
+  • "altimetria": medidas concretas em cm + zona (ex.: "52 a 80 cm na chapa dianteira da porta direita"). NÃO usas "correspondência altimétrica com o outro veículo", "compatível com impacto X".
+  • "reparador": nome ou "Não indicado" / "Não aplicável" / "[a confirmar]".
+  • "ipo": data ou "---".
 
 EXEMPLOS DE CAMPOS COMUNS (orientações tácticas):
 - header.assunto: frase curta tipo "Acidente de trabalho — pedreiro — fractura na perna" (deduz da actividade + lesão).

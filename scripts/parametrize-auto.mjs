@@ -84,8 +84,8 @@ const ANCHORS = [
   { match: "Relação entre intervenientes", tag: "testemunha_relacao", kind: "next-cell" },
   { match: "Local onde se encontrava aquando do acidente", tag: "testemunha_local", kind: "next-cell" },
 
-  // Feridos
-  { match: "Feridos nº", tag: "feridos_total", kind: "next-cell" },
+  // Feridos — "Feridos nº" é uma merged cell sem slot próprio para o total;
+  // só preenchemos as 3 linhas (VS/VT/Peões). O total é info interna do JSON.
   { match: "Veículo Seguro", tag: "feridos_veiculo_seguro", kind: "next-cell" },
   { match: "Veículo Terceiro", tag: "feridos_veiculo_terceiro", kind: "next-cell" },
   { match: "Peões", tag: "feridos_peoes", kind: "next-cell" },
@@ -254,6 +254,20 @@ if (failures.length) {
 if (applyFailures.length) {
   console.log(`\nAction failed:`);
   for (const f of applyFailures) console.log(`  [!!] ${f.anchor.match} → {${f.anchor.tag}} (${f.reason})`);
+}
+
+// Strip Word legacy form fields (FORMTEXT) — they shade grey by default.
+xml = xml.replace(/<w:fldChar\b[^>]*?\/?>/g, "");
+xml = xml.replace(/<\/w:fldChar>/g, "");
+xml = xml.replace(/<w:instrText[^>]*>[^<]*<\/w:instrText>/g, "");
+
+let settings = await zip.file("word/settings.xml").async("string");
+if (!settings.includes("doNotShadeFormData")) {
+  settings = settings.replace(
+    /<\/w:settings>/,
+    '<w:doNotShadeFormData/></w:settings>',
+  );
+  zip.file("word/settings.xml", settings);
 }
 
 zip.file("word/document.xml", xml);
